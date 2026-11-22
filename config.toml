@@ -1,0 +1,38 @@
+# mlxgw configuration.
+# Environment variables override this file: MLXGW_HOST, MLXGW_PORT, MLXGW_API_KEY,
+# MLXGW_PROFILE, MLXGW_MEMORY_FRACTION, MLXGW_MEMORY_BUDGET_GB, MLXGW_CONFIG (path).
+
+[server]
+host = "127.0.0.1"
+port = 8080
+# api_key = "..."          # required when host is not loopback (prefer MLXGW_API_KEY)
+memory_fraction = 0.70     # share of physical RAM that resident model weights may use
+# memory_budget_gb = 30    # absolute budget; overrides memory_fraction
+# profile = "96gb"         # force a profile instead of picking by RAM
+prompt_cache_slots = 4     # KV caches (conversations) kept per loaded model
+default_max_tokens = 4096  # when the request sets neither max_tokens nor max_completion_tokens
+
+# Profiles: the one with the largest min_memory_gb <= this machine's RAM is used.
+# Each maps the same aliases to a model sized for that machine.
+#
+# DEFAULTS - ADJUST: the repos below were checked to exist on Hugging Face
+# and to use architectures supported by the pinned mlx-lm, but were
+# chosen as reasonable starting points, not benchmarked. Weight sizes in comments.
+
+[profiles.48gb]   # e.g. a 48 GB Mac: budget ~33.6 GB at 0.70
+min_memory_gb = 0
+
+[profiles.48gb.models]
+coder = "mlx-community/Qwen3-Coder-30B-A3B-Instruct-4bit"  # 17.2 GB, MoE 3B active
+fast  = "mlx-community/Qwen3-4B-Instruct-2507-4bit"        # 2.3 GB
+tiny  = "mlx-community/Qwen2.5-0.5B-Instruct-4bit"         # 0.3 GB, smoke tests
+inkling = "mlx-community/Inkling-2-Mini-4bit"              # 17.3 GB; needs the pinned mlx-lm build (pyproject.toml)
+
+[profiles.96gb]   # e.g. a 96 GB Mac: budget ~67 GB at 0.70
+min_memory_gb = 80
+
+[profiles.96gb.models]
+coder = "mlx-community/Qwen3-Coder-Next-4bit"              # 44.8 GB, 80B MoE (hybrid attention)
+fast  = "mlx-community/Qwen3-30B-A3B-Instruct-2507-4bit"   # 17.2 GB, MoE 3B active
+tiny  = "mlx-community/Qwen2.5-0.5B-Instruct-4bit"         # 0.3 GB, smoke tests
+inkling = "mlx-community/Inkling-2-Mini-4bit"              # 17.3 GB; needs the pinned mlx-lm build (pyproject.toml)

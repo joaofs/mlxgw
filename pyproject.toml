@@ -1,0 +1,43 @@
+[project]
+name = "mlxgw"
+version = "0.1.0"
+description = "Minimal local OpenAI-compatible gateway for MLX models"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = [
+    "mlx-lm",
+    "starlette",
+    "uvicorn",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "httpx",
+    "openai",
+    "textual>=8.2.8",
+]
+
+[project.scripts]
+mlxgw = "mlxgw.server:main"
+mlxgw-bench = "mlxgw.bench:main"
+mlxgw-tui = "mlxgw.tui:main"  # needs the tui extra
+
+[project.optional-dependencies]
+tui = [
+    "textual>=8.2.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+# Inkling-2-Mini (architecture `inkling2_loop`) needs the unmerged mlx-lm pull request
+# ml-explore/mlx-lm#2086. Pinned to its reviewed head commit, not the branch. Switch back
+# to the PyPI release once the PR is merged and released.
+mlx-lm = { git = "https://github.com/jundot/mlx-lm", rev = "e2b5bbd3bd9d186dea895e60802aa765e70b9d93" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
